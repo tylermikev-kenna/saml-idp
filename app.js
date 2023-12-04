@@ -207,7 +207,7 @@ function processArgs(args, options) {
       },
       acsUrl: {
         description: 'SP Assertion Consumer URL',
-        required: true,
+        required: false,
         alias: 'acs'
       },
       sloUrl: {
@@ -401,6 +401,7 @@ function _runServer(argv) {
     recipient:              argv.acsUrl,
     destination:            argv.acsUrl,
     acsUrl:                 argv.acsUrl,
+    sendResponseTo:         argv.sendResponseTo,
     sloUrl:                 argv.sloUrl,
     RelayState:             argv.relayState,
     digestAlgorithm:        'sha256',
