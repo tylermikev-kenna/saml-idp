@@ -1,5 +1,5 @@
 saml-idp:
    build: .
    ports:
-    - "7005:7005"
+    - "7001:7001"
    net: "host"
