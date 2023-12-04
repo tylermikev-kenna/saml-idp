@@ -185,7 +185,7 @@ function processArgs(args, options) {
         description: 'IdP Web Server Listener Port',
         required: true,
         alias: 'p',
-        default: 7005
+        default: 7001
       },
       cert: {
         description: 'IdP Signature PublicKey Certificate',
