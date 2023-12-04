@@ -3,7 +3,7 @@ FROM node:latest
 ADD ./package.json package.json
 RUN npm install
 
-EXPOSE 7000 7000
+EXPOSE 7005 7005
 
 # ADD ./node_modules node_modules
 ADD ./lib lib

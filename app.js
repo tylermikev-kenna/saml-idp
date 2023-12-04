@@ -185,7 +185,7 @@ function processArgs(args, options) {
         description: 'IdP Web Server Listener Port',
         required: true,
         alias: 'p',
-        default: 7000
+        default: 7005
       },
       cert: {
         description: 'IdP Signature PublicKey Certificate',
@@ -231,12 +231,9 @@ function processArgs(args, options) {
         required: false,
         alias: 'rs'
       },
-      disableRequestAcsUrl: {
-        description: 'Disables ability for SP AuthnRequest to specify Assertion Consumer URL',
-        required: false,
-        boolean: true,
-        alias: 'static',
-        default: false
+      sendResponseTo: {
+        description: 'Used to change where Response is sent, but does not change Response values',
+        required: false
       },
       encryptAssertion: {
         description: 'Encrypts assertion with SP Public Key',
@@ -386,8 +383,8 @@ function _runServer(argv) {
       {cyan ${argv.acsUrl || UNDEFINED_VALUE}}
     SLO URL:
       {cyan ${argv.sloUrl || UNDEFINED_VALUE}}
-    Trust ACS URL in Request:
-      {cyan ${!argv.disableRequestAcsUrl}}
+    Send response to:
+      {cyan ${!argv.sendResponseTo}}
   `));
 
 
@@ -406,7 +403,6 @@ function _runServer(argv) {
     acsUrl:                 argv.acsUrl,
     sloUrl:                 argv.sloUrl,
     RelayState:             argv.relayState,
-    allowRequestAcsUrl:     !argv.disableRequestAcsUrl,
     digestAlgorithm:        'sha256',
     signatureAlgorithm:     'rsa-sha256',
     signResponse:           argv.signResponse,
@@ -429,9 +425,11 @@ function _runServer(argv) {
                             } : {},
     getUserFromRequest:     function(req) { return req.user; },
     getPostURL:             function (audience, authnRequestDom, req, callback) {
-                              return callback(null, (req.idp.options.allowRequestAcsUrl && req.authnRequest && req.authnRequest.acsUrl) ?
-                                req.authnRequest.acsUrl :
-                                req.idp.options.acsUrl);
+                              if (req.idp.options.sendResponseTo) {
+                                return callback(null, req.idp.options.sendResponseTo);
+                              }
+
+                              return callback(null, req.authnRequest.acsUrl);
                             },
     transformAssertion:     function(assertionDom) {
                               if (argv.authnContextDecl) {
@@ -651,28 +649,29 @@ function _runServer(argv) {
     const authOptions = extend({}, req.idp.options);
     Object.keys(req.body).forEach(function(key) {
       var buffer;
-      if (key === '_authnRequest') {
-        buffer = new Buffer(req.body[key], 'base64');
-        req.authnRequest = JSON.parse(buffer.toString('utf8'));
 
-        // Apply AuthnRequest Params
-        authOptions.inResponseTo = req.authnRequest.id;
-
-        const acsUrl = req.idp.options.allowRequestAcsUrl ? req.authnRequest.acsUrl : req.idp.options.acsUrl
-
-        if (acsUrl) {
-          authOptions.acsUrl = acsUrl;
-          authOptions.recipient = acsUrl;
-          authOptions.destination = acsUrl;
-          authOptions.forceAuthn = req.authnRequest.forceAuthn;
-        }
-
-        if (req.authnRequest.relayState) {
-          authOptions.RelayState = req.authnRequest.relayState;
-        }
-      } else {
+      if (key !== '_authnRequest') {
         req.user[key] = req.body[key];
+        return;
       }
+
+      buffer = new Buffer(req.body[key], 'base64');
+      req.authnRequest = JSON.parse(buffer.toString('utf8'));
+
+      // Apply AuthnRequest Params
+      authOptions.inResponseTo = req.authnRequest.id;
+
+      if (req.authnRequest.acsUrl) {
+        authOptions.acsUrl = req.authnRequest.acsUrl;
+        authOptions.recipient = req.authnRequest.acsUrl;
+        authOptions.destination = req.authnRequest.acsUrl;
+        authOptions.forceAuthn = req.authnRequest.forceAuthn;
+      }
+
+      if (req.authnRequest.relayState) {
+        authOptions.RelayState = req.authnRequest.relayState;
+      }
+
     });
 
     if (!authOptions.encryptAssertion) {
