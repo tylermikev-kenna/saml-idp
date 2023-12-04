@@ -429,7 +429,7 @@ function _runServer(argv) {
                             } : {},
     getUserFromRequest:     function(req) { return req.user; },
     getPostURL:             function (audience, authnRequestDom, req, callback) {
-                              return callback(null, (req.authnRequest && req.authnRequest.acsUrl) ?
+                              return callback(null, (req.idp.options.allowRequestAcsUrl && req.authnRequest && req.authnRequest.acsUrl) ?
                                 req.authnRequest.acsUrl :
                                 req.idp.options.acsUrl);
                             },
@@ -657,12 +657,16 @@ function _runServer(argv) {
 
         // Apply AuthnRequest Params
         authOptions.inResponseTo = req.authnRequest.id;
-        if (req.idp.options.allowRequestAcsUrl && req.authnRequest.acsUrl) {
-          authOptions.acsUrl = req.authnRequest.acsUrl;
-          authOptions.recipient = req.authnRequest.acsUrl;
-          authOptions.destination = req.authnRequest.acsUrl;
+
+        const acsUrl = req.idp.options.allowRequestAcsUrl ? req.authnRequest.acsUrl : req.idp.options.acsUrl
+
+        if (acsUrl) {
+          authOptions.acsUrl = acsUrl;
+          authOptions.recipient = acsUrl;
+          authOptions.destination = acsUrl;
           authOptions.forceAuthn = req.authnRequest.forceAuthn;
         }
+
         if (req.authnRequest.relayState) {
           authOptions.RelayState = req.authnRequest.relayState;
         }
