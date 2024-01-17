@@ -120,14 +120,14 @@ saml-idp --acsUrl https://foo.okta.com/auth/saml20/example --audience https://ww
 The following options can either be passed as `--<option>` or to `runServer` in an options object.
 
 Option (* required)      | Description                                                                                         | Default
------------------------: | --------------------------------------------------------------------------------------------------- | ----------
-**host**                 | IdP Web Server Listener Host                                                                       | localhost
+-----------------------: |-----------------------------------------------------------------------------------------------------| ----------
+**host**                 | IdP Web Server Listener Host                                                                        | localhost
 **port**                 | IdP Web Server Listener Port                                                                        | 7000
 **cert** _*_             | IdP Signature PublicKey Certificate                                                                 | ./idp-public-cert.pem
 **key** _*_              | IdP Signature PrivateKey Certificate                                                                | ./idp-private-key.pem
 **issuer** _*_           | IdP Issuer URI                                                                                      | urn:example:idp
 **acsUrl** _*_           | SP Assertion Consumer URL                                                                           |
-**sloUrl**               | SP Single                                                                                           |
+**sloUrl**               | SP Single Log Out                                                                                   |
 **audience** _*_         | SP Audience URI                                                                                     |
 **serviceProviderId**    | SP Issuer/Entity URI                                                                                |
 **relayState**           | Default SAML RelayState                                                                             |

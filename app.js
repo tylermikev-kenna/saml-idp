@@ -213,7 +213,8 @@ function processArgs(args, options) {
       sloUrl: {
         description: 'SP Single Logout URL',
         required: false,
-        alias: 'slo'
+        alias: 'slo',
+        default: 'http://localhost:7001/saml/slo'
       },
       audience: {
         description: 'SP Audience URI',
@@ -384,7 +385,7 @@ function _runServer(argv) {
     SLO URL:
       {cyan ${argv.sloUrl || UNDEFINED_VALUE}}
     Send response to:
-      {cyan ${!argv.sendResponseTo}}
+      {cyan ${argv.sendResponseTo}}
   `));
 
 
@@ -412,7 +413,7 @@ function _runServer(argv) {
     encryptionPublicKey:    argv.encryptionPublicKey,
     encryptionAlgorithm:    'http://www.w3.org/2001/04/xmlenc#aes256-cbc',
     keyEncryptionAlgorithm: 'http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p',
-    lifetimeInSeconds:      3600,
+    lifetimeInSeconds:      30,
     authnContextClassRef:   argv.authnContextClassRef,
     authnContextDecl:       argv.authnContextDecl,
     includeAttributeNameFormat: true,
@@ -530,7 +531,7 @@ function _runServer(argv) {
     resave: false,
     saveUninitialized: true,
     name: 'idp_sid',
-    cookie: { maxAge: 60 * 60 * 1000 }
+    cookie: { maxAge: idpOptions.lifetimeInSeconds }
   }));
 
   /**
