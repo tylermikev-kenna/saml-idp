@@ -399,8 +399,8 @@ function _runServer(argv) {
     cert:                   argv.cert,
     key:                    argv.key,
     audience:               argv.audience,
-    recipient:              argv.acsUrl,
-    destination:            argv.acsUrl,
+    recipient:              argv.sendResponseTo,
+    destination:            argv.sendResponseTo,
     acsUrl:                 argv.acsUrl,
     sendResponseTo:         argv.sendResponseTo,
     sloUrl:                 argv.sloUrl,
@@ -666,7 +666,7 @@ function _runServer(argv) {
       if (req.authnRequest.acsUrl) {
         authOptions.acsUrl = req.authnRequest.acsUrl;
         authOptions.recipient = req.authnRequest.acsUrl;
-        authOptions.destination = req.authnRequest.acsUrl;
+        // authOptions.destination = req.authnRequest.destination;
         authOptions.forceAuthn = req.authnRequest.forceAuthn;
       }
 
